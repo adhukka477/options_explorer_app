@@ -25,8 +25,9 @@ class OptionsChain():
         self.options_chain = pd.merge(left=calls, right=puts, on="strike", how='inner')
         self.options_chain.columns = ['c_Contract', 'c_LastTradeDate', 'Strike', 'c_LastPrice', 'c_Bid',
                                      'c_Ask', 'c_Change', 'c_PercentChange', 'c_Volume', 'c_OpenInterest',
-                                     'c_ImpliedVolatility', 'c_inTheMoney', 'c_ContractSize', 'c_currency',
+                                     'c_IV', 'c_inTheMoney', 'c_ContractSize', 'c_currency',
                                      'p_Contract', 'p_LastTradeDate', 'p_LastPrice', 'p_Bid', 'p_Ask',
                                      'p_Change', 'p_PercentChange', 'p_Volume', 'p_OpenInterest',
-                                     'p_ImpliedVolatility', 'p_inTheMoney', 'p_ContractSize', 'p_currency']
+                                     'p_IV', 'p_inTheMoney', 'p_ContractSize', 'p_currency']
+        self.options_chain.fillna(0, inplace=True)
 

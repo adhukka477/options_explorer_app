@@ -187,7 +187,7 @@
           <item>
            <layout class="QVBoxLayout" name="options_search_v_layout2" stretch="1,8,4,0">
             <item>
-             <widget class="QLabel" name="label">
+             <widget class="QLabel" name="company_label">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -219,7 +219,21 @@
              </widget>
             </item>
             <item>
-             <widget class="QTableView" name="options_search_table_widget"/>
+             <widget class="QTableView" name="options_search_table_widget">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
+               </font>
+              </property>
+              <property name="selectionMode">
+               <enum>QAbstractItemView::SingleSelection</enum>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QTableWidget" name="tableWidget_2"/>
