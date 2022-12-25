@@ -2,6 +2,8 @@ from PyQt5 import QtWidgets, uic
 from resources.options_chain import OptionsChain
 import sys
 
+from support.pandas_model import PandasModel
+
 class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self):
@@ -26,7 +28,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def getOptionsChain(self):
         self.OptionsChainManager.exp_date_selection = self.exp_date_combobox.currentText()
         self.OptionsChainManager.getOptionsChainByExpDate()
-        print(self.OptionsChainManager.options_chain)
+        self.options_search_table_widget.setModel(PandasModel(self.OptionsChainManager.options_chain))
 
 
 if __name__ == "__main__":

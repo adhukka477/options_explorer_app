@@ -185,7 +185,7 @@
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="options_search_v_layout2" stretch="1,20,8,0">
+           <layout class="QVBoxLayout" name="options_search_v_layout2" stretch="1,8,4,0">
             <item>
              <widget class="QLabel" name="label">
               <property name="sizePolicy">
@@ -219,7 +219,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QTableWidget" name="tableWidget"/>
+             <widget class="QTableView" name="options_search_table_widget"/>
             </item>
             <item>
              <widget class="QTableWidget" name="tableWidget_2"/>
