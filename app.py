@@ -21,6 +21,12 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def initalizeSlots(self):
         self.options_chain_manager = OptionsChain()
+        orders_table_columns =["Contract", "Type", "Strike", "Exp_Date",  "DTE", "Qty", "Price", "Debit_Credit"]
+        self.orders_table_model = PandasModel(pd.DataFrame(columns=orders_table_columns))
+        self.orders_table_widget.setModel(self.orders_table_model)
+        col_widths = [250,100,100,125,100,100,100,125]
+        [self.orders_table_widget.setColumnWidth(i, col_widths[i]) for i in range(len(col_widths))]
+        self.orders_table_widget.clearSelection()
 
         self.symbol_line_edit.returnPressed.connect(self.getOptionsExpDates)
         self.exp_date_combobox.currentIndexChanged.connect(self.getOptionsChain)
@@ -63,8 +69,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         else:
             chain_view = pd.DataFrame(columns= ["c_Bid", "c_Ask", "c_IV", "c_Volume", "c_Open_Interest", "Strike", "p_Bid", "p_Ask", "p_IV", "c_Volume", "c_Open_Interest"])
-            model = PandasModel(chain_view)
-            self.options_search_table_widget.setModel(model)
+            self.options_search_table_model = PandasModel(chain_view)
+            self.options_search_table_widget.setModel(self.options_search_table_model)
             col_widths = [100,100,100,125,150,75,100,100,100,125,150]
             [self.options_search_table_widget.setColumnWidth(i, col_widths[i]) for i in range(len(col_widths))]
             self.company_label.setText("")
@@ -96,8 +102,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 if types[col] == float:
                     chain_view[col] = [format(x, '.2f') for x in chain_view[col]]
             
-            model = PandasModel(chain_view)
-            self.options_search_table_widget.setModel(model)
+            self.options_search_table_model = PandasModel(chain_view)
+            self.options_search_table_widget.setModel(self.options_search_table_model)
             col_widths = [100,100,100,125,150,75,100,100,100,125,150]
             [self.options_search_table_widget.setColumnWidth(i, col_widths[i]) for i in range(len(col_widths))]
             self.options_search_table_widget.clearSelection()
@@ -109,8 +115,40 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.order_window = OrderWindow(selected_contracts = selected_contracts)
             self.order_window.show()
+            self.order_window.ok_button.clicked.connect(self.confirmLeg)
+            self.order_window.cancel_button.clicked.connect(self.cancelLeg)
 
-            
+    def confirmLeg(self):
+
+        contract_name = self.order_window.contract_name_label.text()
+        print(contract_name)
+        options_chains = self.options_chain_manager.options_chain
+        selected_contract = options_chains.loc[((options_chains.c_Contract == contract_name) | 
+                                                (options_chains.p_Contract == contract_name)), :]
+        current_order = pd.DataFrame(self.orders_table_model._df.copy())
+        
+        new_order = {
+                    "Contract": contract_name, 
+                    "Type": self.order_window.type_combobox.currentText(), 
+                    "Strike": selected_contract["Strike"].values[0], 
+                    "Exp_Date": self.options_chain_manager.exp_date_selection,  
+                    "DTE":"", 
+                    "Qty": self.order_window.qty, 
+                    "Price": self.order_window.price, 
+                    "Debit_Credit": self.order_window.credi_debit_label.text()
+                    }
+
+        current_order = current_order.append(new_order, ignore_index=True)
+        self.orders_table_model = PandasModel(current_order)
+        self.orders_table_widget.setModel(self.orders_table_model)
+        col_widths = [250,100,100,125,100,100,100,125]
+        [self.orders_table_widget.setColumnWidth(i, col_widths[i]) for i in range(len(col_widths))]
+        self.orders_table_widget.clearSelection()
+
+        self.order_window.close()
+
+    def cancelLeg(self):
+        pass
 
     def addShortLeg(self):
         pass

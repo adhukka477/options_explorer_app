@@ -17,6 +17,7 @@ class OrderWindow(QtWidgets.QMainWindow):
 
         self.qty = 1
         self.price = self.put_price
+        self.contract_name_label.setText(self.put_contract)
         self.price_spinbox.setValue(self.price)
         self.calculateOptionsOrder()
 
@@ -29,8 +30,6 @@ class OrderWindow(QtWidgets.QMainWindow):
         self.qty_spinbox.valueChanged.connect(self.qtyChanged)
         self.price_spinbox.valueChanged.connect(self.priceChanged)
 
-        self.ok_button.clicked.connect(self.confirmLeg)
-        self.cancel_button.clicked.connect(self.cancelLeg)
 
     def calculateOptionsOrder(self):
 
@@ -59,11 +58,5 @@ class OrderWindow(QtWidgets.QMainWindow):
         self.price = self.price_spinbox.value()
         self.calculateOptionsOrder()
 
-    def confirmLeg(self):
-        # Need to Add code to record order in the orders table
 
-        self.close()
-
-    def cancelLeg(self):
-        self.close()
 
