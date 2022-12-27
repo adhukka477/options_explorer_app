@@ -8,9 +8,10 @@ from PyQt5.QtGui import QFont
 
 class PandasModel(QAbstractTableModel):
 
-    def __init__(self, df=pd.DataFrame(), parent=None):
+    def __init__(self, df=pd.DataFrame(), parent=None, bold_cols = []):
         QAbstractTableModel.__init__(self, parent=parent)
         self._df = df
+        self.bold_cols = bold_cols
         self.bold_font = QFont()
         self.bold_font.setBold(True)
 
@@ -24,7 +25,7 @@ class PandasModel(QAbstractTableModel):
             return str(self._df.iloc[index.row(), index.column()])
         elif role == Qt.FontRole:
             # Set the font for the cells in the specified column to bold
-            if index.column() == 5:
+            if index.column() in self.bold_cols:
                 return self.bold_font
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):

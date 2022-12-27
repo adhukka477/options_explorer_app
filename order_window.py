@@ -4,14 +4,14 @@ import numpy as np
 
 class OrderWindow(QtWidgets.QMainWindow):
 
-    def __init__(self, selected_contracts):
+    def __init__(self, selected_contracts, order_type):
         super(OrderWindow, self).__init__() # Call the inherited classes __init__ method
         uic.loadUi('./ui/orderWindow.ui', self) # Load the .ui file
-
+        self.order_type = order_type
         self.contracts = selected_contracts
 
         self.put_contract = selected_contracts["p_Contract"]
-        self.put_price = np.mean(selected_contracts.loc[["p_Bid", "p_Ask"]].to_list())
+        self.put_price =  np.mean(selected_contracts.loc[["p_Bid", "p_Ask"]].to_list())
         self.call_contract = selected_contracts["c_Contract"]
         self.call_price = np.mean(selected_contracts.loc[["c_Bid", "c_Ask"]].to_list())
 
@@ -32,8 +32,9 @@ class OrderWindow(QtWidgets.QMainWindow):
 
 
     def calculateOptionsOrder(self):
-
-        self.credi_debit_label.setText("$" + str(format(self.qty*self.price, '.2f')))
+        if self.order_type == 'short':
+            self.price = -abs(self.price)
+        self.credi_debit_label.setText("$" + str(format(self.qty*self.price*100, '.2f')))
 
     def typeChanged(self):
 
