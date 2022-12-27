@@ -21,7 +21,7 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def initalizeSlots(self):
         self.options_chain_manager = OptionsChain()
-        orders_table_columns =["Contract", "Type", "Strike", "Exp_Date",  "DTE", "Qty", "Price", "Debit_Credit"]
+        orders_table_columns =["Contract", "Type", "Strike", "Exp_Date",  "DTE", "Qty", "Price", "Debit/Credit"]
         self.orders_table_model = PandasModel(pd.DataFrame(columns=orders_table_columns))
         self.orders_table_widget.setModel(self.orders_table_model)
         col_widths = [250,100,100,125,100,100,100,125]
@@ -30,8 +30,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.symbol_line_edit.returnPressed.connect(self.getOptionsExpDates)
         self.exp_date_combobox.currentIndexChanged.connect(self.getOptionsChain)
-        self.long_button.clicked.connect(self.addLongLeg)
-        self.short_button.clicked.connect(self.addShortLeg)
+        self.long_button.clicked.connect(lambda: self.openOrderWindow('long'))
+        self.short_button.clicked.connect(lambda: self.openOrderWindow('short'))
     
 
     def getOptionsExpDates(self):
@@ -69,7 +69,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         else:
             chain_view = pd.DataFrame(columns= ["c_Bid", "c_Ask", "c_IV", "c_Volume", "c_Open_Interest", "Strike", "p_Bid", "p_Ask", "p_IV", "c_Volume", "c_Open_Interest"])
-            self.options_search_table_model = PandasModel(chain_view)
+            self.options_search_table_model = PandasModel(chain_view, bold_cols=[5])
             self.options_search_table_widget.setModel(self.options_search_table_model)
             col_widths = [100,100,100,125,150,75,100,100,100,125,150]
             [self.options_search_table_widget.setColumnWidth(i, col_widths[i]) for i in range(len(col_widths))]
@@ -102,26 +102,25 @@ class MainWindow(QtWidgets.QMainWindow):
                 if types[col] == float:
                     chain_view[col] = [format(x, '.2f') for x in chain_view[col]]
             
-            self.options_search_table_model = PandasModel(chain_view)
+            self.options_search_table_model = PandasModel(chain_view, bold_cols=[5])
             self.options_search_table_widget.setModel(self.options_search_table_model)
             col_widths = [100,100,100,125,150,75,100,100,100,125,150]
             [self.options_search_table_widget.setColumnWidth(i, col_widths[i]) for i in range(len(col_widths))]
             self.options_search_table_widget.clearSelection()
 
-    def addLongLeg(self):
+    def openOrderWindow(self, order_type):
         if len(self.options_search_table_widget.selectedIndexes()) > 0:
             selected_row = self.options_search_table_widget.selectedIndexes()[0].row()
             selected_contracts = self.options_chain_manager.options_chain.iloc[selected_row, ]
 
-            self.order_window = OrderWindow(selected_contracts = selected_contracts)
+            self.order_window = OrderWindow(selected_contracts = selected_contracts, order_type  = order_type)
             self.order_window.show()
             self.order_window.ok_button.clicked.connect(self.confirmLeg)
-            self.order_window.cancel_button.clicked.connect(self.cancelLeg)
+            self.order_window.cancel_button.clicked.connect(lambda: self.order_window.close())
 
     def confirmLeg(self):
 
         contract_name = self.order_window.contract_name_label.text()
-        print(contract_name)
         options_chains = self.options_chain_manager.options_chain
         selected_contract = options_chains.loc[((options_chains.c_Contract == contract_name) | 
                                                 (options_chains.p_Contract == contract_name)), :]
@@ -134,8 +133,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     "Exp_Date": self.options_chain_manager.exp_date_selection,  
                     "DTE":"", 
                     "Qty": self.order_window.qty, 
-                    "Price": self.order_window.price, 
-                    "Debit_Credit": self.order_window.credi_debit_label.text()
+                    "Price": format(self.order_window.price, '.2f'), 
+                    "Debit/Credit": f'{float(self.order_window.credi_debit_label.text().replace("$", "")):,.2f}'
                     }
 
         current_order = current_order.append(new_order, ignore_index=True)
@@ -148,7 +147,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.order_window.close()
 
     def cancelLeg(self):
-        pass
+        self.order_window.close()
 
     def addShortLeg(self):
         pass
